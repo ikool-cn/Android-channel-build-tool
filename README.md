@@ -7,7 +7,7 @@
 |---Python #打包工具
 ```
 
-![](https://github.com/ikool-cn/Android-channel-build-tool/blob/master/Screenshot.png.png)
+![](https://github.com/ikool-cn/Android-channel-build-tool/blob/master/Screenshot/Screenshot.png)
 
 ### 实现原理
  - 写入一个空文件channel_xxx到安卓apk的META-INF目录下
@@ -18,7 +18,7 @@
     目前安卓没有强制要求使用V2签名，所以上面的方法足以满足我们的需求，假如以后强制使用V2签名的话也有解决方案。
     Android 7.0（Nougat）推出了新的应用签名方案APK Signature Scheme v2后，我们看一下zip文件结构。
 
-![](https://github.com/ikool-cn/Android-channel-build-tool/blob/master/v2.png)
+![](https://github.com/ikool-cn/Android-channel-build-tool/blob/master/Screenshot/APK-Signature-Scheme-v2.png)
 
 新应用签名方案的签名信息会被保存在区块2（APK Signing Block）中， 而区块1（Contents of ZIP entries）、区块3（ZIP Central Directory）、区块4（ZIP End of Central Directory）是受保护的，在签名后任何对区块1、3、4的修改都逃不过新的应用签名方案的检查。
 
@@ -26,7 +26,7 @@
 
 通过上面的描述，可以看出因为APK包的区块1、3、4都是受保护的，任何修改在签名后对它们的修改，都会在安装过程中被签名校验检测失败，而区块2（APK Signing Block）是不受签名校验规则保护的，那是否可以在这个不受签名保护的区块2（APK Signing Block）上做文章呢？我们先来看看对区块2格式的描述：
 
-![](https://github.com/ikool-cn/Android-channel-build-tool/blob/master/v2.png)
+![](https://github.com/ikool-cn/Android-channel-build-tool/blob/master/Screenshot/APK-Signing-Block.png)
 
 区块2中APK Signing Block是由这几部分组成：2个用来标示这个区块长度的8字节 ＋ 这个区块的魔数（APK Sig Block 42）+ 这个区块所承载的数据（ID-value）。
 
@@ -37,3 +37,5 @@
 在APK Signature Scheme v2中没有看到对无法识别的ID，有相关处理的介绍。
 
 当看到这里时，我们可不可以设想一下，提供一个自定义的ID-value并写入该区域，从而为快速生成渠道包服务呢？
+
+详情参考：[点击这里](https://tech.meituan.com/2017/01/13/android-apk-v2-signature-scheme.html)
